@@ -8,7 +8,7 @@ npm i @duplojs/multipart
 ## Utilisation
 ```ts
 import Duplo, {zod} from "@duplojs/duplojs";
-import duploMultipart from "../scripts/multipart";
+import duploMultipart from "@duplojs/multipart";
 
 const duplo = Duplo({port: 1506, host: "0.0.0.0"});
 
