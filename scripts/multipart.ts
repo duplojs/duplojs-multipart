@@ -110,7 +110,7 @@ function duploMultipart(instance: DuploInstance<DuploConfig>, options?: DuploMul
 					.on("file", (name, file, properties) => {
 						if(!name || !processProperties.files[name]) return file.resume();
 						if(!multipartFile[name]) multipartFile[name as keyof files] = [];
-						if(multipartFile[name].length === processProperties.files[name]) return file.resume();
+						if(multipartFile[name].length === processProperties.files[name] || !properties.filename) return file.resume();
 
 						const tempFileName = resolve(processProperties.uploadFolder, `${processProperties.prefixTempFile}${Date.now()}`);
 						request.tempMultipartFilenames?.push(tempFileName);
@@ -131,7 +131,7 @@ function duploMultipart(instance: DuploInstance<DuploConfig>, options?: DuploMul
 						}))
 						.resume();
 					})
-					.on("field", (name, value) => fields[name] = value)
+					.on("field", (name, value) => processProperties.fields[name] ? fields[name] = value : undefined)
 					.on("error", rej)
 					.on("close", res)
 				)
