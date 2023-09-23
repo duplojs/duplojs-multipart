@@ -22,24 +22,4 @@ export default defineConfig([
 			})
 		]
 	},
-	{
-		input: "scripts/multipartLocal.ts",
-		output: [
-			{
-				file: "dist/multipartLocal.mjs",
-				format: "esm"
-			},
-			{
-				file: "dist/multipartLocal.cjs",
-				format: "cjs",
-			}
-		],
-		plugins: [
-			esbuild({
-				include: /\.[jt]sx?$/,
-				exclude: /node_modules/,
-				tsconfig: "tsconfig.json",
-			})
-		]
-	},
 ]);

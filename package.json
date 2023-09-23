@@ -1,57 +1,55 @@
 {
-  "name": "duplojs-multipart",
+  "name": "@duplojs/multipart",
   "version": "0.0.0",
+  "author": "mathcovax",
   "description": "",
-  "scripts": {
-	  "dev": "nodemon --exec 'ts-node test/index.ts'",
-	  "dev-abs": "nodemon --exec 'ts-node test/indexAbstract.ts'",
-	  "build": "rollup --config && npx tsc"
-	},
-  "files": [
-	  "dist",
-	  "types"
-	],
+  "repository": "https://github.com/duplojs/duplojs-multipart",
+  "license": "ISC",
+  "keywords": [],
+  "types": "./types/multipart.d.ts",
   "exports": {
-	  ".": {
+    "default": {
       "import": "./dist/multipart.mjs",
       "require": "./dist/multipart.cjs"
-	  },
-	  "./local": {
-      "import": "./dist/multipartLocal.mjs",
-      "require": "./dist/multipartLocal.cjs"
-	  }
-	},
-  "typesVersions": {
-	  "*": {
-      "local": ["./types/multipartLocal.d.ts"],
-      "*": ["./types/multipart.d.ts"]
-	  }
-	},
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+    }
+  },
+  "files": [
+    "dist",
+    "types"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "dev": "nodemon --exec 'ts-node test/index.ts'",
+    "dev-abs": "nodemon --exec 'ts-node test/indexAbstract.ts'",
+    "build": "rollup --config && npx tsc"
+  },
   "dependencies": {
-    "@duplojs/duplojs": "^0.6.9"
+    "@duplojs/duplojs": ">=0.6.13",
+    "@types/busboy": "^1.5.0",
+    "busboy": "^1.6.0",
+    "zod": "^3.22.2"
   },
   "devDependencies": {
-	  "@types/node": "^18.15.11",
-	  "@typescript-eslint/eslint-plugin": "^6.0.0",
-	  "@typescript-eslint/parser": "^6.0.0",
-	  "autocannon": "^7.11.0",
-	  "eslint": "^8.45.0",
-	  "nodemon": "^3.0.1",
-	  "rollup": "^3.26.2",
-	  "rollup-plugin-dts": "^5.3.0",
-	  "rollup-plugin-esbuild": "^5.0.0",
-	  "ts-node": "^10.9.1",
-	  "tslib": "^2.5.0",
-	  "typescript": "^5.0.2"
-	},
-	"nodemonConfig": {
-	  "watch": [
+    "@types/node": "^18.15.11",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "autocannon": "^7.11.0",
+    "eslint": "^8.45.0",
+    "nodemon": "^3.0.1",
+    "rollup": "^3.26.2",
+    "rollup-plugin-dts": "^5.3.0",
+    "rollup-plugin-esbuild": "^5.0.0",
+    "ts-node": "^10.9.1",
+    "tslib": "^2.5.0",
+    "typescript": "^5.0.2"
+  },
+  "nodemonConfig": {
+    "watch": [
       "scripts",
       "test"
-	  ],
-	  "ext": "ts, js"
-	}
+    ],
+    "ext": "ts, js"
+  }
 }
