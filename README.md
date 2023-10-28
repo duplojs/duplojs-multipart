@@ -17,7 +17,7 @@ const multipartProcess = duplo.use(duploMultipart, {uploadFolder: "./upload"});
 duplo.declareRoute("POST", "/upload")
 .process(
     ...multipartProcess({
-        files: {myFile: 2},
+        files: {myFile: {max: 2}},
         fields: {test: zod.string().optional()},
     })
 )
