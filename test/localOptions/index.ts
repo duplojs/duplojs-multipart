@@ -45,7 +45,7 @@ export default workerTesting(
 			}
 		},
 		{
-			title: "error header",
+			title: "prefix",
 			url: "http://localhost:1506/test/2",
 			method: "POST",
 			output: [
