@@ -113,45 +113,46 @@ function duploMultipart(instance: DuploInstance<DuploConfig>, options?: DuploMul
 			pickup("content-length") <= processProperties.maxSize || 
 			processProperties.catchTooLargeError(response)
 		)
-		.custom(async({}, request, response) => {
-			const fields: any = {};
-			const multipartGetFields: multipartGetFields<fields> = () => Object.entries(processProperties.fields).reduce(
-				(pv, [key, value]) => {
-					try {
-						pv[key] = value.parse(fields[key]);
-					}
-					catch (error){
-						if(error instanceof zod.ZodError) processProperties.catchFieldsError(response, key, error);
-						else processProperties.catchError(response, error as Error);
-					}
-					return pv;
-				}, 
+		.cut(
+			async({}, response, request) => {
+				const fields: any = {};
+				const multipartGetFields: multipartGetFields<fields> = () => Object.entries(processProperties.fields).reduce(
+					(pv, [key, value]) => {
+						try {
+							pv[key] = value.parse(fields[key]);
+						}
+						catch (error){
+							if(error instanceof zod.ZodError) processProperties.catchFieldsError(response, key, error);
+							else processProperties.catchError(response, error as Error);
+						}
+						return pv;
+					}, 
 				{} as any
-			);
+				);
 			
-			if(processProperties.files) request.tempMultipartFilenames = [];
-			const multipartGetFile = Object.keys(processProperties.files).reduce(
-				(pv, c: keyof files) => {
-					pv[c] = [];
-					return pv;
-				}, 
+				if(processProperties.files) request.tempMultipartFilenames = [];
+				const multipartGetFile = Object.keys(processProperties.files).reduce(
+					(pv, c: keyof files) => {
+						pv[c] = [];
+						return pv;
+					}, 
 				{} as Record<keyof files, DuplomultipartGetFileObject[]>
-			);
+				);
 
-			try {
-				await new Promise((res, rej) =>  
-					request.rawRequest.pipe(
-						busboy({
-							headers: request.rawRequest.headers, 
-							limits: {
-								files: processProperties.maxFiles,
-								fileSize: processProperties.maxFileSize,
-								fieldSize: processProperties.maxFieldSize,
-							}
-						})
-						.on("file", (name: keyof files, file, properties) => {
-							if(
-								!name || 
+				try {
+					await new Promise((res, rej) =>  
+						request.rawRequest.pipe(
+							busboy({
+								headers: request.rawRequest.headers, 
+								limits: {
+									files: processProperties.maxFiles,
+									fileSize: processProperties.maxFileSize,
+									fieldSize: processProperties.maxFieldSize,
+								}
+							})
+							.on("file", (name: keyof files, file, properties) => {
+								if(
+									!name || 
 								!properties.filename || 
 								!processProperties.files[name] ||
 								multipartGetFile[name]?.length === processProperties.files[name].max ||
@@ -159,44 +160,46 @@ function duploMultipart(instance: DuploInstance<DuploConfig>, options?: DuploMul
 									processProperties.files[name].mimeType &&
 									!processProperties.files[name].mimeType?.includes(properties.mimeType)
 								)
-							) return file.resume();
+								) return file.resume();
 
-							const tempFileName = resolve(processProperties.uploadFolder, `${processProperties.prefixTempFile}${Date.now()}`);
-							request.tempMultipartFilenames?.push(tempFileName);
-							const writeStream = createWriteStream(tempFileName, {flags: "a"});
-							file.on("data", data => writeStream.write(data))
-							.on("error", rej)
-							.on("close", () => multipartGetFile[name].push({
-								properties,
-								save: (path) => {
-									request.tempMultipartFilenames?.splice(request.tempMultipartFilenames?.indexOf(tempFileName), 1);
-									return rename(tempFileName, path);
-								},
-								unlink: () => {
-									request.tempMultipartFilenames?.splice(request.tempMultipartFilenames?.indexOf(tempFileName), 1);
-									return unlink(tempFileName);
-								},
-								tempFileName,
+								const tempFileName = resolve(processProperties.uploadFolder, `${processProperties.prefixTempFile}${Date.now()}`);
+								request.tempMultipartFilenames?.push(tempFileName);
+								const writeStream = createWriteStream(tempFileName, {flags: "a"});
+								file.on("data", data => writeStream.write(data))
+								.on("error", rej)
+								.on("close", () => multipartGetFile[name].push({
+									properties,
+									save: (path) => {
+										request.tempMultipartFilenames?.splice(request.tempMultipartFilenames?.indexOf(tempFileName), 1);
+										return rename(tempFileName, path);
+									},
+									unlink: () => {
+										request.tempMultipartFilenames?.splice(request.tempMultipartFilenames?.indexOf(tempFileName), 1);
+										return unlink(tempFileName);
+									},
+									tempFileName,
 									
-							}))
-							.resume();
-						})
-						.on("field", (name, value) => processProperties.fields[name] ? fields[name] = value : undefined)
-						.on("error", rej)
-						.on("close", res)
-					)
-				);
+								}))
+								.resume();
+							})
+							.on("field", (name, value) => processProperties.fields[name] ? fields[name] = value : undefined)
+							.on("error", rej)
+							.on("close", res)
+						)
+					);
 				
-			}
-			catch (error){
-				processProperties.catchError(response, error as Error);
-			}
+				}
+				catch (error){
+					processProperties.catchError(response, error as Error);
+				}
 		
-			return {
-				multipartGetFields,
-				multipartGetFile,
-			};
-		})
+				return {
+					multipartGetFields,
+					multipartGetFile,
+				};
+			},
+			["multipartGetFields", "multipartGetFile"]
+		)
 		.build(["multipartGetFields", "multipartGetFile"]);
 
 		const processParams = {

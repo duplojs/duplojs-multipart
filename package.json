@@ -25,7 +25,7 @@
     "build": "rollup --config && tsc"
   },
   "dependencies": {
-    "@duplojs/duplojs": ">=0.12.19",
+    "@duplojs/duplojs": ">=0.13.19",
     "@types/busboy": "^1.5.0",
     "busboy": "^1.6.0"
   },
