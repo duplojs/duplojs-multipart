@@ -98,7 +98,7 @@ function duploMultipart(instance: DuploInstance<DuploConfig>, options?: DuploMul
 			ProcessExtractObj,
 			typeof processProperties,
 			{}
-		>("duploMultipart")
+		>(`processMultipart${duploMultipart.count++}`)
 		.hook("afterSend", request => request.tempMultipartFilenames?.forEach(value => unlink(value).catch(console.error)))
 		.extract(
 			{
@@ -215,5 +215,7 @@ function duploMultipart(instance: DuploInstance<DuploConfig>, options?: DuploMul
 		return [process, processParams] as [typeof process, typeof processParams];
 	};
 }
+
+duploMultipart.count = 0;
 
 export default duploMultipart;
