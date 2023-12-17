@@ -57,10 +57,10 @@ export type multipartGetFields<fields extends Record<string, zod.ZodType>> = () 
 function duploMultipart(instance: DuploInstance<DuploConfig>, options?: DuploMultipartOptions){
 	instance.plugins["@duplojs/multipart"] = {version: packageJson.version};
 
-	return <
+	return function <
 		files extends Record<string, fileParameters> = {},
 		fields extends Record<string, zod.ZodType> = {}
-	>(multipartFormDataParams: DuploMultipartFormDataParams<files, fields>) => {
+	>(multipartFormDataParams: DuploMultipartFormDataParams<files, fields>){
 		const processProperties = {
 			files: multipartFormDataParams.files || {} as Record<keyof files, fileParameters>,
 			fields: multipartFormDataParams.fields || {} as Record<keyof fields, zod.ZodType>,
