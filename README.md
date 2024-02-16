@@ -1,4 +1,5 @@
 # duplojs-multipart
+[![NPM version](https://img.shields.io/npm/v/@duplojs/multipart)](https://www.npmjs.com/package/@duplojs/multipart)
 
 ## Instalation
 ```
@@ -10,7 +11,7 @@ npm i @duplojs/multipart
 import Duplo, {zod} from "@duplojs/duplojs";
 import duploMultipart from "@duplojs/multipart";
 
-const duplo = Duplo({port: 1506, host: "0.0.0.0"});
+const duplo = Duplo({port: 1506, host: "localhost", environment: "DEV"});
 
 const multipartProcess = duplo.use(duploMultipart, {uploadFolder: "./upload"});
 

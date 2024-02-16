@@ -3,7 +3,7 @@ import duploMultipart from "../../scripts/multipart";
 import {parentPort} from "worker_threads";
 import {readdirSync} from "fs";
 
-const duplo = Duplo({port: 1506, host: "0.0.0.0"});
+const duplo = Duplo({port: 1506, host: "0.0.0.0", environment: "DEV"});
 
 const multipartProcess = duplo.use(duploMultipart, {uploadFolder: __dirname + "/../upload"});
 
