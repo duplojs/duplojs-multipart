@@ -121,7 +121,9 @@ function duploMultipart(instance: DuploInstance<DuploConfig>, options?: DuploMul
 				);
 
 				try {
-					await new Promise((res, rej) =>  
+					await new Promise((res, rej) => {  
+						const promisesList: Promise<unknown>[] = [];
+
 						request.rawRequest.pipe(
 							busboy({
 								headers: request.rawRequest.headers, 
@@ -149,27 +151,28 @@ function duploMultipart(instance: DuploInstance<DuploConfig>, options?: DuploMul
 								request.tempMultipartFilenames?.push(tempFileName);
 
 								const writeStream = createWriteStream(tempFileName, {flags: "a"});
+								file.pipe(writeStream.on("error", rej)).on("error", rej);
 
-								file.on("data", data => {
-									writeStream.write(data);
-								})
-								.on("error", rej)
-								.on("close", () => {
-									multipartGetFile[name].push({
-										properties,
-										save: (path) => {
-											request.tempMultipartFilenames?.splice(request.tempMultipartFilenames?.indexOf(tempFileName), 1);
-											return rename(tempFileName, path);
-										},
-										unlink: () => {
-											request.tempMultipartFilenames?.splice(request.tempMultipartFilenames?.indexOf(tempFileName), 1);
-											return unlink(tempFileName);
-										},
-										tempFileName,
-									
-									});
-								})
-								.resume();
+								promisesList.push(
+									new Promise<undefined>(r => {
+										writeStream.on("close", () => {
+											multipartGetFile[name].push({
+												properties,
+												save: (path) => {
+													request.tempMultipartFilenames?.splice(request.tempMultipartFilenames?.indexOf(tempFileName), 1);
+													return rename(tempFileName, path);
+												},
+												unlink: () => {
+													request.tempMultipartFilenames?.splice(request.tempMultipartFilenames?.indexOf(tempFileName), 1);
+													return unlink(tempFileName);
+												},
+												tempFileName,
+											});
+											
+											r(undefined);
+										});
+									})
+								);
 							})
 							.on("field", (name, value) => {
 								if(processProperties.fields[name]){
@@ -177,9 +180,9 @@ function duploMultipart(instance: DuploInstance<DuploConfig>, options?: DuploMul
 								}
 							})
 							.on("error", rej)
-							.on("close", res)
-						)
-					);
+							.on("close", () => Promise.all(promisesList).then(res))
+						);
+					});
 				
 				}
 				catch (error){
